@@ -1,0 +1,425 @@
+# 🏥 Hospital Management Analytics Platform using Snowflake
+
+## 📌 Project Overview
+
+This project demonstrates an end-to-end Hospital Management Analytics Platform built using Snowflake. The solution ingests patient, appointment, and billing data from AWS S3, processes it through Snowflake Streams and Tasks, applies data quality validations, and delivers secure analytical insights through Dynamic Tables, Views, RBAC, and Masking Policies.
+
+The project follows a modern data warehouse architecture and showcases real-world Snowflake capabilities for data engineering, governance, and analytics.
+
+---
+
+## 🏗️ Architecture
+
+```text
+AWS S3
+   │
+   ▼
+External Stage
+   │
+   ▼
+Snowpipe
+   │
+   ▼
+RAW Tables
+   │
+   ▼
+Streams
+   │
+   ▼
+CORE Tables
+   │
+   ├── Valid Records
+   │
+   └── Exception Tables
+          (Invalid Records)
+   │
+   ▼
+Dynamic Dimension Tables
+Dynamic Fact Tables
+   │
+   ▼
+Analytics Views
+   │
+   ▼
+RBAC + Masking Policies
+   │
+   ▼
+Secure Views
+   │
+   ▼
+Power BI Dashboard
+```
+
+---
+
+## 📂 Source Datasets
+
+### Patients
+
+```text
+patients_master.csv
+```
+
+Columns:
+
+```text
+PATIENT_ID
+FULL_NAME
+DOB
+GENDER
+PHONE
+EMAIL
+CITY
+STATE
+REGISTRATION_DATE
+```
+
+### Appointments
+
+```text
+appointments.csv
+```
+
+Columns:
+
+```text
+APPT_ID
+APPT_DATE
+PATIENT_ID
+DOCTOR_ID
+DOCTOR_NAME
+DEPARTMENT
+SLOT
+STATUS
+```
+
+### Billing
+
+```text
+billing.csv
+```
+
+Columns:
+
+```text
+BILL_ID
+BILL_DATE
+PATIENT_ID
+SERVICE_CODE
+SERVICE_DESC
+DEPARTMENT
+GROSS_AMOUNT
+DISCOUNT_AMOUNT
+TAX_AMOUNT
+NET_AMOUNT
+PAYMENT_MODE
+INSURER_NAME
+```
+
+---
+
+## ⚙️ Technologies Used
+
+* Snowflake
+* AWS S3
+* Snowpipe
+* Streams
+* Tasks
+* Dynamic Tables
+* SQL
+* RBAC
+* Masking Policies
+* Secure Views
+* Power BI
+
+---
+
+## 🏢 Snowflake Objects
+
+### Warehouses
+
+```text
+HOSPITAL_MANAGEMENT_LOADING
+HOSPITAL_MANAGEMENT_ANALYTICS
+```
+
+### Database
+
+```text
+HOSPITAL_DATABASE
+```
+
+### Schemas
+
+```text
+HOSPITAL_RAW
+HOSPITAL_CORE
+HOSPITAL_MART
+```
+
+---
+
+## 📥 Data Ingestion
+
+### External Stage
+
+Data files are stored in AWS S3 and accessed through Snowflake External Stages.
+
+### Snowpipe
+
+Automated ingestion using:
+
+```text
+PATIENT_PIPE
+APPOINTMENT_PIPE
+BILLING_PIPE
+```
+
+---
+
+## 🗄️ RAW Layer
+
+### Tables
+
+```text
+PATIENT_RAW
+APPOINTMENT_RAW
+BILLING_RAW
+```
+
+### Streams
+
+```text
+PATIENT_STREAM
+APPOINTMENT_STREAM
+BILLING_STREAM
+```
+
+Streams capture incremental changes and support Change Data Capture (CDC).
+
+---
+
+## 🔄 CORE Layer
+
+### Core Tables
+
+```text
+PATIENT_CORE
+APPOINTMENT_CORE
+BILLING_CORE
+```
+
+### Exception Tables
+
+```text
+PATIENT_EXCEPTION
+APPOINTMENT_EXCEPTION
+BILLING_EXCEPTION
+```
+
+### Validation Rules
+
+* Patient ID must not be NULL
+* Appointment Date must be valid
+* Billing Date must be valid
+* Net Amount must be greater than or equal to zero
+* Appointment Status must be:
+
+  * Scheduled
+  * Completed
+  * No-Show
+  * Cancelled
+
+Invalid records are redirected to Exception Tables.
+
+---
+
+## 📊 MART Layer
+
+### Dynamic Dimension Tables
+
+```text
+DIM_PATIENT
+DIM_DOCTOR
+```
+
+### Dynamic Fact Tables
+
+```text
+FACT_APPOINTMENT
+FACT_BILLING
+```
+
+Dynamic Tables automatically refresh and eliminate manual scheduling.
+
+---
+
+## 📈 Analytics Views
+
+### Department Appointment Summary
+
+```text
+VW_DEPT_APPT_SUMMARY
+```
+
+KPIs:
+
+* Total Appointments
+* Completed Visits
+* No-Shows
+* Completion Rate
+
+### Daily OPD Trend
+
+```text
+VW_DAILY_OPD_TREND
+```
+
+KPIs:
+
+* Daily Visits
+* No-Shows
+* Average Appointments per Doctor
+
+### Revenue by Department
+
+```text
+VW_REVENUE_BY_DEPT
+```
+
+KPIs:
+
+* Gross Revenue
+* Net Revenue
+* Average Bill Value
+
+### Patient Utilization
+
+```text
+VW_PATIENT_UTILIZATION
+```
+
+KPIs:
+
+* Total Visits
+* Last Visit Date
+* Lifetime Revenue
+
+### Insurance Mix
+
+```text
+VW_INSURANCE_MIX
+```
+
+KPIs:
+
+* Insurance Revenue
+* Self-Pay Revenue
+
+---
+
+## 🔐 Security & Governance
+
+### Roles
+
+```text
+HOSPITAL_ADMIN_ROLE
+HOSPITAL_DOCTOR_ROLE
+HOSPITAL_FINANCE_ROLE
+```
+
+### Masking Policies
+
+* Patient Name Masking
+* Phone Number Masking
+* Email Masking
+* Revenue Masking
+* Insurance Name Masking
+
+### Secure Views
+
+```text
+SV_PATIENTS
+SV_APPOINTMENTS
+SV_BILLING
+```
+
+### Row Access Policy
+
+Department-level access control is implemented using Row Access Policies.
+
+---
+
+## 📊 Power BI Dashboard
+
+### KPIs
+
+* Total Patients
+* Total Appointments
+* Total Revenue
+* No-Show Rate
+
+### Visualizations
+
+* Revenue by Department
+* Daily OPD Trend
+* Appointment Status Analysis
+* Insurance vs Self-Pay Mix
+* Patient Utilization Analysis
+
+---
+
+## 🚀 Key Snowflake Features Demonstrated
+
+* External Stages
+* Snowpipe
+* Streams
+* Tasks
+* Dynamic Tables
+* Views
+* Secure Views
+* RBAC
+* Masking Policies
+* Row Access Policies
+* Clustering
+* Result Caching
+
+---
+
+## 🎯 Learning Outcomes
+
+This project demonstrates:
+
+* End-to-End Data Warehousing
+* Incremental Data Processing
+* Data Quality Management
+* Data Governance
+* Security Implementation
+* Business Analytics
+* Dashboard Development
+* Snowflake Best Practices
+
+---
+
+## 👨‍💻 Author
+
+**Hariharan V M**
+
+* GitHub: https://github.com/hariharan1009
+* LinkedIn: https://linkedin.com/in/hari-haran-vm
+
+---
+
+## ⭐ Project Highlights
+
+✔ End-to-End Snowflake Data Warehouse
+✔ Automated Data Ingestion with Snowpipe
+✔ Incremental Processing using Streams & Tasks
+✔ Dynamic Tables for Real-Time Analytics
+✔ RBAC & Data Masking Implementation
+✔ Secure Reporting Layer
+✔ Power BI Dashboard Integration
+✔ Enterprise-Ready Data Architecture
+
+```
+```
