@@ -1,209 +1,98 @@
-# 🏥 Hospital Management Analytics Platform using Snowflake
+# 🏥 Hospital Management Analytics Platform | Snowflake Data Warehouse
 
-## 📌 Project Overview
+## 📖 Overview
 
-This project demonstrates an end-to-end Hospital Management Analytics Platform built using Snowflake. The solution ingests patient, appointment, and billing data from AWS S3, processes it through Snowflake Streams and Tasks, applies data quality validations, and delivers secure analytical insights through Dynamic Tables, Views, RBAC, and Masking Policies.
+The Hospital Management Analytics Platform is an end-to-end Snowflake Data Warehouse solution designed to automate healthcare data ingestion, transformation, governance, and analytics.
 
-The project follows a modern data warehouse architecture and showcases real-world Snowflake capabilities for data engineering, governance, and analytics.
+The platform processes patient, appointment, and billing data from AWS S3, applies business validation rules, captures invalid records, and provides secure analytical insights through Dynamic Tables, Secure Views, RBAC, and Power BI dashboards.
 
 ---
 
-## 🏗️ Architecture
+## 🚀 Project Architecture
 
-```text
-AWS S3
-   │
-   ▼
-External Stage
-   │
-   ▼
-Snowpipe
-   │
-   ▼
-RAW Tables
-   │
-   ▼
-Streams
-   │
-   ▼
-CORE Tables
-   │
-   ├── Valid Records
-   │
-   └── Exception Tables
-          (Invalid Records)
-   │
-   ▼
-Dynamic Dimension Tables
-Dynamic Fact Tables
-   │
-   ▼
-Analytics Views
-   │
-   ▼
-RBAC + Masking Policies
-   │
-   ▼
-Secure Views
-   │
-   ▼
-Power BI Dashboard
+```mermaid
+flowchart TD
+
+A[AWS S3] --> B[External Stage]
+B --> C[Snowpipe]
+C --> D[RAW Layer]
+
+D --> E[Streams]
+E --> F[CORE Layer]
+
+F --> G[Exception Tables]
+F --> H[Dynamic Tables]
+
+H --> I[Dimension Tables]
+H --> J[Fact Tables]
+
+I --> K[Analytics Views]
+J --> K
+
+K --> L[Secure Views]
+L --> M[RBAC & Masking Policies]
+M --> N[Power BI Dashboard]
 ```
 
 ---
 
-## 📂 Source Datasets
+## 🛠️ Tech Stack
 
-### Patients
-
-```text
-patients_master.csv
-```
-
-Columns:
-
-```text
-PATIENT_ID
-FULL_NAME
-DOB
-GENDER
-PHONE
-EMAIL
-CITY
-STATE
-REGISTRATION_DATE
-```
-
-### Appointments
-
-```text
-appointments.csv
-```
-
-Columns:
-
-```text
-APPT_ID
-APPT_DATE
-PATIENT_ID
-DOCTOR_ID
-DOCTOR_NAME
-DEPARTMENT
-SLOT
-STATUS
-```
-
-### Billing
-
-```text
-billing.csv
-```
-
-Columns:
-
-```text
-BILL_ID
-BILL_DATE
-PATIENT_ID
-SERVICE_CODE
-SERVICE_DESC
-DEPARTMENT
-GROSS_AMOUNT
-DISCOUNT_AMOUNT
-TAX_AMOUNT
-NET_AMOUNT
-PAYMENT_MODE
-INSURER_NAME
-```
+| Category       | Technology             |
+| -------------- | ---------------------- |
+| Cloud Storage  | AWS S3                 |
+| Data Warehouse | Snowflake              |
+| Data Ingestion | Snowpipe               |
+| CDC            | Streams                |
+| Processing     | Tasks                  |
+| Data Modeling  | Dynamic Tables         |
+| Security       | RBAC, Masking Policies |
+| Reporting      | Secure Views           |
+| Visualization  | Power BI               |
 
 ---
 
-## ⚙️ Technologies Used
+# 📂 Project Layers
 
-* Snowflake
-* AWS S3
-* Snowpipe
-* Streams
-* Tasks
-* Dynamic Tables
-* SQL
-* RBAC
-* Masking Policies
-* Secure Views
-* Power BI
+## 1️⃣ RAW Layer
 
----
+### Source Files
 
-## 🏢 Snowflake Objects
+* `patients_master.csv`
+* `appointments.csv`
+* `billing.csv`
 
-### Warehouses
+### RAW Tables
 
-```text
-HOSPITAL_MANAGEMENT_LOADING
-HOSPITAL_MANAGEMENT_ANALYTICS
-```
-
-### Database
-
-```text
-HOSPITAL_DATABASE
-```
-
-### Schemas
-
-```text
-HOSPITAL_RAW
-HOSPITAL_CORE
-HOSPITAL_MART
-```
-
----
-
-## 📥 Data Ingestion
-
-### External Stage
-
-Data files are stored in AWS S3 and accessed through Snowflake External Stages.
-
-### Snowpipe
-
-Automated ingestion using:
-
-```text
-PATIENT_PIPE
-APPOINTMENT_PIPE
-BILLING_PIPE
-```
-
----
-
-## 🗄️ RAW Layer
-
-### Tables
-
-```text
+```sql
 PATIENT_RAW
 APPOINTMENT_RAW
 BILLING_RAW
 ```
 
+### Snowpipes
+
+```sql
+PATIENT_PIPE
+APPOINTMENT_PIPE
+BILLING_PIPE
+```
+
 ### Streams
 
-```text
+```sql
 PATIENT_STREAM
 APPOINTMENT_STREAM
 BILLING_STREAM
 ```
 
-Streams capture incremental changes and support Change Data Capture (CDC).
-
 ---
 
-## 🔄 CORE Layer
+## 2️⃣ CORE Layer
 
 ### Core Tables
 
-```text
+```sql
 PATIENT_CORE
 APPOINTMENT_CORE
 BILLING_CORE
@@ -211,146 +100,192 @@ BILLING_CORE
 
 ### Exception Tables
 
-```text
+```sql
 PATIENT_EXCEPTION
 APPOINTMENT_EXCEPTION
 BILLING_EXCEPTION
 ```
 
-### Validation Rules
+### Data Quality Rules
 
-* Patient ID must not be NULL
-* Appointment Date must be valid
-* Billing Date must be valid
-* Net Amount must be greater than or equal to zero
-* Appointment Status must be:
+✔ Patient ID cannot be NULL
 
-  * Scheduled
-  * Completed
-  * No-Show
-  * Cancelled
+✔ Appointment Date must be valid
 
-Invalid records are redirected to Exception Tables.
+✔ Billing Date must be valid
+
+✔ Net Amount must be greater than or equal to 0
+
+✔ Appointment Status must be:
+
+* Scheduled
+* Completed
+* No-Show
+* Cancelled
+
+Invalid records are automatically routed to Exception Tables.
 
 ---
 
-## 📊 MART Layer
+## 3️⃣ MART Layer
 
 ### Dynamic Dimension Tables
 
-```text
+```sql
 DIM_PATIENT
 DIM_DOCTOR
 ```
 
 ### Dynamic Fact Tables
 
-```text
+```sql
 FACT_APPOINTMENT
 FACT_BILLING
 ```
 
-Dynamic Tables automatically refresh and eliminate manual scheduling.
+Dynamic Tables provide automatic refresh and incremental processing.
 
 ---
 
-## 📈 Analytics Views
+## 📊 Analytics Views
 
 ### Department Appointment Summary
 
-```text
+```sql
 VW_DEPT_APPT_SUMMARY
 ```
 
-KPIs:
+Metrics:
 
 * Total Appointments
 * Completed Visits
 * No-Shows
 * Completion Rate
 
+---
+
 ### Daily OPD Trend
 
-```text
+```sql
 VW_DAILY_OPD_TREND
 ```
 
-KPIs:
+Metrics:
 
 * Daily Visits
 * No-Shows
 * Average Appointments per Doctor
 
+---
+
 ### Revenue by Department
 
-```text
+```sql
 VW_REVENUE_BY_DEPT
 ```
 
-KPIs:
+Metrics:
 
 * Gross Revenue
 * Net Revenue
 * Average Bill Value
 
+---
+
 ### Patient Utilization
 
-```text
+```sql
 VW_PATIENT_UTILIZATION
 ```
 
-KPIs:
+Metrics:
 
 * Total Visits
 * Last Visit Date
 * Lifetime Revenue
 
+---
+
 ### Insurance Mix
 
-```text
+```sql
 VW_INSURANCE_MIX
 ```
 
-KPIs:
+Metrics:
 
 * Insurance Revenue
 * Self-Pay Revenue
 
 ---
 
-## 🔐 Security & Governance
+# 🔒 Security & Governance
 
-### Roles
+## Role-Based Access Control (RBAC)
 
-```text
+### Admin Role
+
+```sql
 HOSPITAL_ADMIN_ROLE
+```
+
+Access:
+
+* Full System Access
+* Patient Data
+* Billing Data
+* Security Management
+
+### Doctor Role
+
+```sql
 HOSPITAL_DOCTOR_ROLE
+```
+
+Access:
+
+* Patient Data
+* Appointment Data
+
+### Finance Role
+
+```sql
 HOSPITAL_FINANCE_ROLE
 ```
 
-### Masking Policies
+Access:
 
-* Patient Name Masking
-* Phone Number Masking
-* Email Masking
-* Revenue Masking
-* Insurance Name Masking
+* Billing Data
+* Revenue Reports
+* Insurance Reports
 
-### Secure Views
+---
 
-```text
+## Masking Policies
+
+Implemented masking for:
+
+* Patient Name
+* Phone Number
+* Email Address
+* Revenue
+* Insurance Details
+
+---
+
+## Secure Views
+
+```sql
 SV_PATIENTS
 SV_APPOINTMENTS
 SV_BILLING
 ```
 
-### Row Access Policy
-
-Department-level access control is implemented using Row Access Policies.
+Used for secure reporting and controlled data access.
 
 ---
 
-## 📊 Power BI Dashboard
+# 📈 Power BI Dashboard
 
 ### KPIs
 
@@ -363,63 +298,62 @@ Department-level access control is implemented using Row Access Policies.
 
 * Revenue by Department
 * Daily OPD Trend
+* Insurance Mix
 * Appointment Status Analysis
-* Insurance vs Self-Pay Mix
 * Patient Utilization Analysis
 
 ---
 
-## 🚀 Key Snowflake Features Demonstrated
+# 🎯 Key Snowflake Features Demonstrated
 
 * External Stages
 * Snowpipe
 * Streams
 * Tasks
 * Dynamic Tables
-* Views
 * Secure Views
 * RBAC
 * Masking Policies
 * Row Access Policies
 * Clustering
-* Result Caching
+* Data Quality Validation
 
 ---
 
-## 🎯 Learning Outcomes
+# 📸 Dashboard Preview
+
+*Add screenshots of your Power BI dashboard here.*
+
+```md
+![Dashboard](images/dashboard.png)
+```
+
+---
+
+# 📚 Learning Outcomes
 
 This project demonstrates:
 
 * End-to-End Data Warehousing
 * Incremental Data Processing
-* Data Quality Management
 * Data Governance
 * Security Implementation
-* Business Analytics
-* Dashboard Development
+* Business Intelligence
+* Healthcare Analytics
 * Snowflake Best Practices
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Hariharan V M**
 
-* GitHub: https://github.com/hariharan1009
-* LinkedIn: https://linkedin.com/in/hari-haran-vm
+🔗 GitHub: https://github.com/hariharan1009
+
+🔗 LinkedIn: https://linkedin.com/in/hari-haran-vm
+
+🌐 Portfolio: https://hariharan.software
 
 ---
 
-## ⭐ Project Highlights
-
-✔ End-to-End Snowflake Data Warehouse
-✔ Automated Data Ingestion with Snowpipe
-✔ Incremental Processing using Streams & Tasks
-✔ Dynamic Tables for Real-Time Analytics
-✔ RBAC & Data Masking Implementation
-✔ Secure Reporting Layer
-✔ Power BI Dashboard Integration
-✔ Enterprise-Ready Data Architecture
-
-```
-```
+## ⭐ If you found this project useful, consider giving it a star!
